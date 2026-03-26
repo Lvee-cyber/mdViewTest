@@ -36,19 +36,24 @@
   <body>
     <nav class="topbar">
       <div class="topbar-left">
-        <div class="brand-mark" aria-hidden="true">M</div>
+        <div class="brand-mark" aria-hidden="true">
+          <span class="brand-mark-grid">
+            <span class="brand-mark-tile brand-mark-tile-a"></span>
+            <span class="brand-mark-tile brand-mark-tile-b"></span>
+            <span class="brand-mark-tile brand-mark-tile-c"></span>
+          </span>
+        </div>
         <div>
-          <div class="brand-title">MarkView Lab</div>
+          <div class="brand-title">
+            <span class="brand-title-main">MarkView</span>
+            <span class="brand-title-accent">Lab</span>
+          </div>
           <div class="brand-subtitle" id="hero-badge">Focused Markdown Reader</div>
         </div>
       </div>
-      <div class="topbar-center">
-        <a class="download-link" href="#download" id="download-link">
-          <span class="download-pill">App Store</span>
-          <span class="download-copy" id="download-copy">下载应用，解锁完整体验</span>
-        </a>
-      </div>
       <div class="topbar-right">
+        <button class="action-btn" id="open-file-btn" type="button">打开文件</button>
+        <button class="action-btn action-btn-secondary" id="open-link-btn" type="button">输入链接</button>
         <select id="lang-select" class="topbar-select" aria-label="Language">
           <option value="zh-Hans">简体中文</option>
           <option value="en">English</option>
@@ -63,6 +68,13 @@
         </button>
       </div>
     </nav>
+
+    <input
+      id="file-input"
+      type="file"
+      accept=".md,.markdown,text/markdown,text/plain"
+      hidden
+    />
 
     <div class="theme-popover" id="theme-popover">
       <div class="popover-section">
@@ -126,11 +138,25 @@
     <div class="popover-backdrop" id="popover-backdrop"></div>
 
     <main class="card-wrapper">
-      <div class="card-bg" id="card-bg">
-        <button class="card-close-btn" id="card-close-btn" type="button" hidden>×</button>
-        <article id="preview-content" class="default-theme">
-          <div class="loading-hint">Loading…</div>
-        </article>
+      <div class="viewer-shell">
+        <aside class="outline-sidebar" id="outline-sidebar">
+          <div class="outline-sidebar-head">
+            <div class="outline-title" id="outline-title">大纲</div>
+            <button class="outline-toggle" id="outline-toggle" type="button" aria-label="Toggle outline">
+              <span class="outline-toggle-open">⟨</span>
+              <span class="outline-toggle-closed">⟩</span>
+            </button>
+          </div>
+          <nav class="outline-nav" id="outline-nav">
+            <div class="outline-empty" id="outline-empty">当前内容没有标题结构</div>
+          </nav>
+        </aside>
+        <div class="card-bg" id="card-bg">
+          <button class="card-close-btn" id="card-close-btn" type="button" hidden>×</button>
+          <article id="preview-content" class="default-theme">
+            <div class="loading-hint">Loading…</div>
+          </article>
+        </div>
       </div>
     </main>
 
@@ -142,10 +168,7 @@
     </div>
 
     <footer class="mobile-download" id="download">
-      <a class="download-link mobile-download-link" href="#download">
-        <span class="download-pill">Preview App</span>
-        <span class="download-copy" id="mobile-download-copy">Paste or drop a markdown file to try it.</span>
-      </a>
+      <div class="mobile-download-link" id="mobile-download-copy">Paste or drop a markdown file to try it.</div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

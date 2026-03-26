@@ -13,17 +13,26 @@
     theme: localStorage.getItem("markview-theme") || "default",
     lang: localStorage.getItem("markview-language") || inferLanguage(),
     fontSize: Number(localStorage.getItem("markview-fontsize")) || 17,
-    customPreview: false
+    customPreview: false,
+    outlineCollapsed: localStorage.getItem("markview-outline-collapsed") === "1"
   };
 
   const langSelect = document.getElementById("lang-select");
   const preview = document.getElementById("preview-content");
   const cardBg = document.getElementById("card-bg");
+  const outlineSidebar = document.getElementById("outline-sidebar");
+  const outlineNav = document.getElementById("outline-nav");
+  const outlineTitle = document.getElementById("outline-title");
+  const outlineEmpty = document.getElementById("outline-empty");
+  const outlineToggle = document.getElementById("outline-toggle");
   const themeTrigger = document.getElementById("theme-trigger");
   const themePopover = document.getElementById("theme-popover");
   const popoverBackdrop = document.getElementById("popover-backdrop");
   const appearGroup = document.getElementById("appear-group");
   const themeList = document.getElementById("theme-list");
+  const openFileButton = document.getElementById("open-file-btn");
+  const openLinkButton = document.getElementById("open-link-btn");
+  const fileInput = document.getElementById("file-input");
   const fontValue = document.getElementById("fontsize-value");
   const fontMinus = document.getElementById("fontsize-minus");
   const fontPlus = document.getElementById("fontsize-plus");
@@ -88,8 +97,11 @@
     langSelect.value = state.lang;
     document.querySelector('meta[name="description"]').setAttribute("content", copy.description);
     document.getElementById("hero-badge").textContent = copy.badge;
-    document.getElementById("download-copy").textContent = copy.download;
     document.getElementById("mobile-download-copy").textContent = copy.mobileDownload;
+    openFileButton.textContent = copy.openFile;
+    openLinkButton.textContent = copy.openLink;
+    outlineTitle.textContent = copy.outline;
+    outlineEmpty.textContent = copy.outlineEmpty;
     document.getElementById("label-appearance").textContent = copy.appearance;
     document.getElementById("label-theme").textContent = copy.theme;
     document.getElementById("label-fontsize").textContent = copy.fontSize;
@@ -153,8 +165,69 @@
       });
     }
     wrapTables();
+    buildOutline();
     renderMermaidBlocks();
     cardBg.scrollTop = 0;
+  }
+
+  function slugifyHeading(text, index) {
+    const base = text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .replace(/\s+/g, "-");
+    return base ? `section-${base}-${index}` : `section-${index}`;
+  }
+
+  function buildOutline() {
+    const headings = Array.from(preview.querySelectorAll("h1, h2, h3"));
+    outlineNav.innerHTML = "";
+
+    if (!headings.length) {
+      outlineNav.appendChild(outlineEmpty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    headings.forEach((heading, index) => {
+      if (!heading.id) {
+        heading.id = slugifyHeading(heading.textContent || "", index + 1);
+      }
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `outline-link outline-link-${heading.tagName.toLowerCase()}`;
+      button.textContent = heading.textContent || "";
+      button.dataset.targetId = heading.id;
+      button.addEventListener("click", () => {
+        cardBg.scrollTo({ top: Math.max(0, heading.offsetTop - 18), behavior: "smooth" });
+      });
+      fragment.appendChild(button);
+    });
+
+    outlineNav.appendChild(fragment);
+    syncOutlineActive();
+  }
+
+  function syncOutlineActive() {
+    const headings = Array.from(preview.querySelectorAll("h1, h2, h3"));
+    if (!headings.length) return;
+
+    let activeId = headings[0].id;
+    const scrollMarker = cardBg.scrollTop + 32;
+    for (const heading of headings) {
+      if (heading.offsetTop <= scrollMarker) activeId = heading.id;
+    }
+
+    outlineNav.querySelectorAll(".outline-link").forEach((link) => {
+      link.classList.toggle("active", link.dataset.targetId === activeId);
+    });
+  }
+
+  function setOutlineCollapsed(collapsed) {
+    state.outlineCollapsed = collapsed;
+    outlineSidebar.classList.toggle("collapsed", collapsed);
+    localStorage.setItem("markview-outline-collapsed", collapsed ? "1" : "0");
   }
 
   async function renderMermaidBlocks() {
@@ -243,6 +316,37 @@
     reader.readAsText(file);
   }
 
+  async function openFromLink() {
+    const copy = currentUi();
+    const input = window.prompt(copy.linkPrompt, "");
+    if (!input) return;
+
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    if (trimmed.startsWith("file://")) {
+      window.alert(copy.localUrlHint);
+      return;
+    }
+
+    let targetUrl = trimmed;
+    if (!/^https?:\/\//i.test(trimmed)) {
+      targetUrl = new URL(trimmed, window.location.href).toString();
+    }
+
+    try {
+      preview.innerHTML = `<div class="loading-hint">${copy.linkLoading}</div>`;
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const markdown = await response.text();
+      openCustom(markdown);
+    } catch (error) {
+      loadDemo();
+      window.alert(copy.linkFetchError);
+    }
+  }
+
   function initEvents() {
     langSelect.addEventListener("change", (event) => {
       state.lang = event.target.value;
@@ -282,6 +386,15 @@
     fontMinus.addEventListener("click", () => setFontSize(state.fontSize - 1));
     fontPlus.addEventListener("click", () => setFontSize(state.fontSize + 1));
     closeButton.addEventListener("click", loadDemo);
+    openFileButton.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (file) handleDroppedFile(file);
+      fileInput.value = "";
+    });
+    openLinkButton.addEventListener("click", openFromLink);
+    outlineToggle.addEventListener("click", () => setOutlineCollapsed(!state.outlineCollapsed));
+    cardBg.addEventListener("scroll", syncOutlineActive);
 
     let dragDepth = 0;
     document.addEventListener("dragenter", (event) => {
@@ -329,6 +442,7 @@
 
   function init() {
     applyUiCopy();
+    setOutlineCollapsed(state.outlineCollapsed);
     setAppearance(localStorage.getItem("markview-appearance") || "system");
     setFontSize(state.fontSize);
     loadDemo();
