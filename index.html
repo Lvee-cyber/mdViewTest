@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MarkView Lab</title>
+    <meta
+      name="description"
+      content="A lightweight Markdown preview experience with curated themes, syntax highlighting, KaTeX math, and Mermaid diagrams."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+    />
+    <link rel="stylesheet" href="site.css" />
+    <link rel="stylesheet" href="themes.css" />
+    <script>
+      (() => {
+        const appearance = localStorage.getItem("markview-appearance") || "system";
+        document.documentElement.setAttribute("data-appearance", appearance);
+        const dark =
+          appearance === "dark" ||
+          (appearance === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      })();
+    </script>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="topbar-left">
+        <div class="brand-mark" aria-hidden="true">M</div>
+        <div>
+          <div class="brand-title">MarkView Lab</div>
+          <div class="brand-subtitle" id="hero-badge">Focused Markdown Reader</div>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <a class="download-link" href="#download" id="download-link">
+          <span class="download-pill">App Store</span>
+          <span class="download-copy" id="download-copy">下载应用，解锁完整体验</span>
+        </a>
+      </div>
+      <div class="topbar-right">
+        <select id="lang-select" class="topbar-select" aria-label="Language">
+          <option value="zh-Hans">简体中文</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+        </select>
+        <button class="theme-trigger" id="theme-trigger" type="button">
+          <span class="aa-icon">Aa</span>
+          <span class="aa-divider"></span>
+          <span class="aa-theme-name" id="aa-theme-name">Default</span>
+          <span class="aa-arrow">▾</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="theme-popover" id="theme-popover">
+      <div class="popover-section">
+        <div class="popover-section-title" id="label-appearance">Appearance</div>
+        <div class="appear-group" id="appear-group">
+          <button class="appear-option" data-mode="system" type="button">System</button>
+          <button class="appear-option" data-mode="light" type="button">Light</button>
+          <button class="appear-option" data-mode="dark" type="button">Dark</button>
+        </div>
+        <div class="fontsize-row">
+          <span class="fontsize-label" id="label-fontsize">Font Size</span>
+          <div class="fontsize-stepper">
+            <button class="stepper-btn" id="fontsize-minus" type="button">−</button>
+            <span class="stepper-value" id="fontsize-value">17px</span>
+            <button class="stepper-btn" id="fontsize-plus" type="button">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="popover-divider"></div>
+      <div class="popover-section">
+        <div class="popover-section-title" id="label-theme">Theme</div>
+        <div class="theme-list" id="theme-list">
+          <button class="theme-option active" data-theme="default" type="button">
+            <span>
+              <span class="theme-name">Default</span>
+              <span class="theme-sub">Clean, versatile sans-serif</span>
+            </span>
+            <span class="theme-check">✓</span>
+          </button>
+          <button class="theme-option" data-theme="essay" type="button">
+            <span>
+              <span class="theme-name">Essay</span>
+              <span class="theme-sub">Editorial serif for long reads</span>
+            </span>
+            <span class="theme-check">✓</span>
+          </button>
+          <button class="theme-option" data-theme="notebook" type="button">
+            <span>
+              <span class="theme-name">Notebook</span>
+              <span class="theme-sub">Warm and personal notes</span>
+            </span>
+            <span class="theme-check">✓</span>
+          </button>
+          <button class="theme-option" data-theme="terminal" type="button">
+            <span>
+              <span class="theme-name">Terminal</span>
+              <span class="theme-sub">Monospace and contrast-heavy</span>
+            </span>
+            <span class="theme-check">✓</span>
+          </button>
+          <button class="theme-option" data-theme="github" type="button">
+            <span>
+              <span class="theme-name">GitHub</span>
+              <span class="theme-sub">Open-source familiar</span>
+            </span>
+            <span class="theme-check">✓</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="popover-backdrop" id="popover-backdrop"></div>
+
+    <main class="card-wrapper">
+      <div class="card-bg" id="card-bg">
+        <button class="card-close-btn" id="card-close-btn" type="button" hidden>×</button>
+        <article id="preview-content" class="default-theme">
+          <div class="loading-hint">Loading…</div>
+        </article>
+      </div>
+    </main>
+
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-hint">
+        <div class="drop-icon">⇪</div>
+        <div class="drop-text" id="drop-text">Drop to Preview</div>
+      </div>
+    </div>
+
+    <footer class="mobile-download" id="download">
+      <a class="download-link mobile-download-link" href="#download">
+        <span class="download-pill">Preview App</span>
+        <span class="download-copy" id="mobile-download-copy">Paste or drop a markdown file to try it.</span>
+      </a>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
