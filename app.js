@@ -119,6 +119,14 @@
       preview.classList.remove(className);
     }
     preview.classList.add(themeClassMap[themeName] || themeClassMap.default);
+    outlineSidebar.classList.remove(
+      "outline-theme-default",
+      "outline-theme-essay",
+      "outline-theme-notebook",
+      "outline-theme-terminal",
+      "outline-theme-github"
+    );
+    outlineSidebar.classList.add(`outline-theme-${themeName}`);
     state.theme = themeName;
     localStorage.setItem("markview-theme", themeName);
 
