@@ -770,33 +770,13 @@ main {
   }
 
   .outline-sidebar {
-    width: 54px;
-    flex-basis: 54px;
-  }
-
-  .outline-sidebar .outline-title,
-  .outline-sidebar .outline-nav {
-    display: none;
-  }
-
-  .outline-sidebar .outline-sidebar-head {
-    padding: 12px;
-    justify-content: center;
-    border-bottom: 0;
-  }
-
-  .outline-sidebar .outline-toggle-open {
-    display: none;
-  }
-
-  .outline-sidebar .outline-toggle-closed {
-    display: inline;
+    width: 220px;
+    flex-basis: 220px;
   }
 
   .outline-sidebar.collapsed {
     width: 54px;
     flex-basis: 54px;
-    border: 1px solid var(--bar-border);
   }
 
   .topbar-right {
