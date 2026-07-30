@@ -1,4 +1,4 @@
-const CACHE_NAME = "markview-lab-v5";
+const CACHE_NAME = "markview-lab-v6";
 const FONT_FILES = [
   "KaTeX_AMS-Regular.woff2",
   "KaTeX_Caligraphic-Bold.woff2",
