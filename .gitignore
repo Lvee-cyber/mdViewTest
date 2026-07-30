@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+output/
+.playwright-cli/
+
+# Keep only the KaTeX files used by the offline reader.
+vendor/katex/**
+!vendor/katex/katex.min.css
+!vendor/katex/katex.min.js
+!vendor/katex/contrib/
+vendor/katex/contrib/**
+!vendor/katex/contrib/auto-render.min.js
+!vendor/katex/fonts/
+vendor/katex/fonts/**
+!vendor/katex/fonts/*.woff2

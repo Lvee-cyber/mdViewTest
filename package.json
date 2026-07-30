@@ -1,0 +1,16 @@
+{
+  "name": "markview-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local-first Markdown reader with offline support.",
+  "scripts": {
+    "serve": "python3 -m http.server 4173"
+  },
+  "dependencies": {
+    "dompurify": "3.2.6",
+    "highlight.js": "11.11.1",
+    "katex": "0.16.11",
+    "marked": "15.0.12",
+    "mermaid": "11.6.0"
+  }
+}
